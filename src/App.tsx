@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppConfig, HotkeyPreset, OverlayTriggerState, AIProvider, AppContextType, HistoryItem } from './types';
 import { loadAppConfig, saveAppConfig, addHistoryItem, exportConfigJSON, parseAndValidateImportJSON, switchActiveProfile } from './services/storageService';
 import { processAIText } from './services/aiService';
-import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
 import { HotkeyManager } from './components/HotkeyManager';
 import { HotkeyRecorderModal } from './components/HotkeyRecorderModal';
 import { FloatingOverlayWindow } from './components/FloatingOverlayWindow';
@@ -344,7 +344,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1115] text-slate-200 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#0F1115] text-slate-200 flex flex-col md:flex-row font-sans selection:bg-indigo-600 selection:text-white">
       {/* Toast Notification Popup */}
       {toastMessage && (
         <div className="fixed bottom-14 right-6 z-50 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-5 border border-indigo-500/30">
@@ -361,8 +361,8 @@ export default function App() {
         className="hidden"
       />
 
-      {/* Main App Header */}
-      <Header
+      {/* Left Sidebar Navigation */}
+      <Sidebar
         config={config}
         onTabChange={handleTabChange}
         onExportConfig={handleExportConfig}
@@ -382,143 +382,146 @@ export default function App() {
         onOpenAiAnywhere={() => setIsAiAnywhereOpen(true)}
       />
 
-      {/* Page Content Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-12">
-        {config.activeTab === 'profiles' && (
-          <ProfileManager
-            config={config}
-            onUpdateConfig={(newConfig) => setConfig(newConfig)}
-            onShowToast={showToast}
-            user={null}
-            googleToken={null}
-            onOpenCloudSyncTab={() => handleTabChange('cloud_sync')}
-          />
-        )}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
+        {/* Page Content Container */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {config.activeTab === 'profiles' && (
+            <ProfileManager
+              config={config}
+              onUpdateConfig={(newConfig) => setConfig(newConfig)}
+              onShowToast={showToast}
+              user={null}
+              googleToken={null}
+              onOpenCloudSyncTab={() => handleTabChange('cloud_sync')}
+            />
+          )}
 
-        {config.activeTab === 'automations' && (
-          <AutomationRecorder
-            config={config}
-            onUpdateConfig={(newConfig) => setConfig(newConfig)}
-            onShowToast={showToast}
-            user={null}
-            googleToken={null}
-            onOpenCloudSyncTab={() => handleTabChange('cloud_sync')}
-          />
-        )}
+          {config.activeTab === 'automations' && (
+            <AutomationRecorder
+              config={config}
+              onUpdateConfig={(newConfig) => setConfig(newConfig)}
+              onShowToast={showToast}
+              user={null}
+              googleToken={null}
+              onOpenCloudSyncTab={() => handleTabChange('cloud_sync')}
+            />
+          )}
 
-        {config.activeTab === 'manager' && (
-          <HotkeyManager
-            hotkeys={config.hotkeys}
-            onAddPreset={handleAddPreset}
-            onEditPreset={handleEditPreset}
-            onTogglePreset={handleTogglePreset}
-            onClonePreset={handleClonePreset}
-            onDeletePreset={handleDeletePreset}
-            onTestPreset={(preset) =>
-              triggerAIHotkeyExecution(
-                preset,
-                'Selected sample text captured from Windows active window to test prompt output.'
-              )
-            }
-          />
-        )}
+          {config.activeTab === 'manager' && (
+            <HotkeyManager
+              hotkeys={config.hotkeys}
+              onAddPreset={handleAddPreset}
+              onEditPreset={handleEditPreset}
+              onTogglePreset={handleTogglePreset}
+              onClonePreset={handleClonePreset}
+              onDeletePreset={handleDeletePreset}
+              onTestPreset={(preset) =>
+                triggerAIHotkeyExecution(
+                  preset,
+                  'Selected sample text captured from Windows active window to test prompt output.'
+                )
+              }
+            />
+          )}
 
-        {config.activeTab === 'web_overlay' && (
-          <WebOverlayManager
-            config={config}
-            onUpdateConfig={(newConfig) => setConfig(newConfig)}
-            onShowToast={showToast}
-            onLaunchOverlay={(profileId) => {
-              setActiveWebProfileId(profileId);
-              setIsWebOverlayOpen(true);
-            }}
-          />
-        )}
+          {config.activeTab === 'web_overlay' && (
+            <WebOverlayManager
+              config={config}
+              onUpdateConfig={(newConfig) => setConfig(newConfig)}
+              onShowToast={showToast}
+              onLaunchOverlay={(profileId) => {
+                setActiveWebProfileId(profileId);
+                setIsWebOverlayOpen(true);
+              }}
+            />
+          )}
 
-        {config.activeTab === 'notes' && (
-          <QuickNotesMainView
-            config={config}
-            onUpdateConfig={(newConfig) => setConfig(newConfig)}
-            onShowToast={showToast}
-            onOpenQuickNotesPopup={() => setIsQuickNotesOpen(true)}
-          />
-        )}
+          {config.activeTab === 'notes' && (
+            <QuickNotesMainView
+              config={config}
+              onUpdateConfig={(newConfig) => setConfig(newConfig)}
+              onShowToast={showToast}
+              onOpenQuickNotesPopup={() => setIsQuickNotesOpen(true)}
+            />
+          )}
 
-        {config.activeTab === 'simulator' && (
-          <WindowsSimulator
-            hotkeys={config.hotkeys}
-            onTriggerHotkey={(preset, text, ctx) => triggerAIHotkeyExecution(preset, text, ctx)}
-            onOpenQuickNotesPopup={() => setIsQuickNotesOpen(true)}
-            onOpenWebOverlay={() => setIsWebOverlayOpen(true)}
-            onOpenAiAnywhere={(txt) => {
-              if (txt) setAiAnywhereSelectedText(txt);
-              setIsAiAnywhereOpen(true);
-            }}
-            onOpenAutomationsTab={() => handleTabChange('automations')}
-          />
-        )}
+          {config.activeTab === 'simulator' && (
+            <WindowsSimulator
+              hotkeys={config.hotkeys}
+              onTriggerHotkey={(preset, text, ctx) => triggerAIHotkeyExecution(preset, text, ctx)}
+              onOpenQuickNotesPopup={() => setIsQuickNotesOpen(true)}
+              onOpenWebOverlay={() => setIsWebOverlayOpen(true)}
+              onOpenAiAnywhere={(txt) => {
+                if (txt) setAiAnywhereSelectedText(txt);
+                setIsAiAnywhereOpen(true);
+              }}
+              onOpenAutomationsTab={() => handleTabChange('automations')}
+            />
+          )}
 
-        {config.activeTab === 'providers' && (
-          <ProviderSettings
-            config={config}
-            onUpdateProvider={(prov, data) =>
-              setConfig((prev) => ({
-                ...prev,
-                providers: {
-                  ...prev.providers,
-                  [prov]: { ...(prev.providers[prov] || {}), ...data },
-                },
-              }))
-            }
-            onUpdateOverlaySettings={(stg) =>
-              setConfig((prev) => ({
-                ...prev,
-                overlaySettings: { ...prev.overlaySettings, ...stg },
-              }))
-            }
-          />
-        )}
+          {config.activeTab === 'providers' && (
+            <ProviderSettings
+              config={config}
+              onUpdateProvider={(prov, data) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  providers: {
+                    ...prev.providers,
+                    [prov]: { ...(prev.providers[prov] || {}), ...data },
+                  },
+                }))
+              }
+              onUpdateOverlaySettings={(stg) =>
+                setConfig((prev) => ({
+                  ...prev,
+                  overlaySettings: { ...prev.overlaySettings, ...stg },
+                }))
+              }
+            />
+          )}
 
-        {config.activeTab === 'installer' && <DesktopSetupGuide config={config} />}
+          {config.activeTab === 'installer' && <DesktopSetupGuide config={config} />}
 
-        {config.activeTab === 'history' && (
-          <HistoryLog
-            history={config.history}
-            onClearHistory={() => setConfig((prev) => ({ ...prev, history: [] }))}
-            onReRunItem={(item) => {
-              const preset = config.hotkeys.find((h) => h.title === item.hotkeyTitle) || config.hotkeys[0];
-              if (preset) triggerAIHotkeyExecution(preset, item.inputText, item.appContext);
-            }}
-          />
-        )}
+          {config.activeTab === 'history' && (
+            <HistoryLog
+              history={config.history}
+              onClearHistory={() => setConfig((prev) => ({ ...prev, history: [] }))}
+              onReRunItem={(item) => {
+                const preset = config.hotkeys.find((h) => h.title === item.hotkeyTitle) || config.hotkeys[0];
+                if (preset) triggerAIHotkeyExecution(preset, item.inputText, item.appContext);
+              }}
+            />
+          )}
 
-        {config.activeTab === 'cloud_sync' && (
-          <CloudSyncTab
-            config={config}
-            onUpdateConfig={(newConfig) => setConfig(newConfig)}
-            onShowToast={showToast}
-          />
-        )}
-      </main>
+          {config.activeTab === 'cloud_sync' && (
+            <CloudSyncTab
+              config={config}
+              onUpdateConfig={(newConfig) => setConfig(newConfig)}
+              onShowToast={showToast}
+            />
+          )}
+        </main>
 
-      {/* Bottom Status Bar */}
-      <footer className="mt-auto h-12 bg-[#15181E] border-t border-slate-800 px-6 sm:px-8 flex items-center justify-between text-[11px] text-slate-400">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Gemini API Connected</span>
+        {/* Bottom Status Bar */}
+        <footer className="mt-auto h-12 bg-[#15181E] border-t border-slate-800 px-6 sm:px-8 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Gemini API Connected</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>Windows User32.dll Keyhooks Active</span>
+            </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Windows User32.dll Keyhooks Active</span>
+          <div className="flex items-center gap-4 font-mono text-slate-500">
+            <span>Latency: 142ms</span>
+            <span className="text-slate-700">|</span>
+            <span>v2.0.4-stable</span>
           </div>
-        </div>
-        <div className="flex items-center gap-4 font-mono text-slate-500">
-          <span>Latency: 142ms</span>
-          <span className="text-slate-700">|</span>
-          <span>v2.0.4-stable</span>
-        </div>
-      </footer>
+        </footer>
+      </div>
 
       {/* Hotkey Recorder / Editor Modal */}
       <HotkeyRecorderModal
