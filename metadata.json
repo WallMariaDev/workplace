@@ -1,0 +1,6 @@
+{
+  "name": "QuickKeys AI - Windows Desktop Overlay",
+  "description": "Production-ready Windows AI Hotkey Overlay Studio & Desktop App generator with multi-provider AI text-to-text, floating response overlay, hotkey management, and downloadable installer setup.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
