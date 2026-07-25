@@ -4,13 +4,13 @@
   "version": "2.0.4",
   "description": "QuickKeys AI - Smart Automation Recorder, Hotkeys Studio & Web Overlay",
   "author": "QuickKeys AI Team",
-  "main": "electron.js",
+  "main": "electron-main.cjs",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "desktop": "npx electron .",
-    "app": "npx electron .",
-    "dev:desktop": "npx electron .",
+    "desktop": "electron .",
+    "app": "electron .",
+    "dev:desktop": "electron .",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "build:exe": "npm run build && npx electron-builder --win portable",
@@ -28,8 +28,7 @@
     },
     "files": [
       "dist/**/*",
-      "electron.js",
-      "electron.cjs",
+      "electron-main.cjs",
       "preload.cjs"
     ],
     "win": {
