@@ -272,14 +272,6 @@ export const QuickNotesMainView: React.FC<QuickNotesMainViewProps> = ({
             </button>
 
             <button
-              onClick={exportAllNotesAsMarkdown}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center space-x-2"
-            >
-              <Download className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Export .MD</span>
-            </button>
-
-            <button
               onClick={handleOpenCreateModal}
               className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition flex items-center space-x-1.5 shadow-lg shadow-amber-500/20 cursor-pointer"
             >

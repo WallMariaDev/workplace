@@ -61,7 +61,6 @@ import {
   saveAutomationWorkflow,
   deleteAutomationWorkflow,
   duplicateAutomationWorkflow,
-  exportAutomationWorkflowJSON,
   updateAutomationCloudBackupStatus
 } from '../services/storageService';
 import { saveSingleAutomationToDrive, googleSignIn } from '../services/googleDriveService';
@@ -763,14 +762,6 @@ export const AutomationRecorder: React.FC<AutomationRecorderProps> = ({
                     title="Duplicate Workflow"
                   >
                     <Copy className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => exportAutomationWorkflowJSON(workflow)}
-                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
-                    title="Export Workflow JSON"
-                  >
-                    <Download className="w-3.5 h-3.5 text-emerald-400" />
                   </button>
 
                   <button

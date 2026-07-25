@@ -80,15 +80,6 @@ export const HistoryLog: React.FC<HistoryLogProps> = ({ history, onClearHistory,
 
         <div className="flex items-center space-x-2 shrink-0">
           <button
-            onClick={exportHistoryCSV}
-            disabled={history.length === 0}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 text-xs font-semibold border border-slate-700 transition flex items-center space-x-1.5"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export CSV</span>
-          </button>
-
-          <button
             onClick={onClearHistory}
             disabled={history.length === 0}
             className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 disabled:opacity-40 text-xs font-semibold border border-slate-700 transition flex items-center space-x-1.5"

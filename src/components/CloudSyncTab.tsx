@@ -223,14 +223,6 @@ export const CloudSyncTab: React.FC<CloudSyncTabProps> = ({
 
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => exportConfigJSON(config)}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center space-x-2"
-            >
-              <Download className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Export JSON</span>
-            </button>
-
-            <button
               onClick={() => setShowJsonInspector(!showJsonInspector)}
               className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center space-x-2"
             >
@@ -437,27 +429,6 @@ export const CloudSyncTab: React.FC<CloudSyncTabProps> = ({
 
             {/* Local Actions */}
             <div className="space-y-3 pt-2">
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => exportConfigJSON(config)}
-                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/20"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export Backup</span>
-                </button>
-
-                <label className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs transition flex items-center justify-center space-x-2 cursor-pointer">
-                  <Upload className="w-4 h-4 text-emerald-400" />
-                  <span>Import JSON File</span>
-                  <input
-                    type="file"
-                    accept=".json,application/json"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
               <button
                 onClick={() => setShowResetConfirmModal(true)}
                 className="w-full px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-medium transition flex items-center justify-center space-x-2"

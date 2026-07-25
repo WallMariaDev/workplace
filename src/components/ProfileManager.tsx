@@ -29,7 +29,6 @@ import {
   switchActiveProfile,
   renameProfile,
   deleteProfile,
-  exportSingleProfileJSON,
   parseAndValidateImportJSON,
   saveAppConfig
 } from '../services/storageService';
@@ -386,14 +385,6 @@ export const ProfileManager: React.FC<ProfileManagerProps> = ({
                     title="Rename / Edit Metadata"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => exportSingleProfileJSON(profile)}
-                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
-                    title="Export Profile JSON"
-                  >
-                    <Download className="w-3.5 h-3.5 text-indigo-400" />
                   </button>
 
                   {profiles.length > 1 && (

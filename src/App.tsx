@@ -532,6 +532,26 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
         {/* Page Content Container */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {config.profiles && config.profiles.length > 0 && config.activeTab !== 'profiles' && (
+            <div className="mb-6 flex items-center justify-between bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3 px-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                <div>
+                  <p className="text-xs text-indigo-300/70 font-semibold uppercase tracking-wider">Active Workspace</p>
+                  <p className="text-sm text-indigo-100 font-medium">
+                    {config.profiles.find(p => p.id === (config.activeProfileId || config.profiles?.[0]?.id))?.name || 'Default Profile'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleTabChange('profiles')}
+                className="text-xs text-indigo-400 hover:text-indigo-300 font-medium px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 transition"
+              >
+                Switch / Manage
+              </button>
+            </div>
+          )}
+          
           {config.activeTab === 'profiles' && (
             <ProfileManager
               config={config}
