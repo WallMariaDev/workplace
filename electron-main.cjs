@@ -122,9 +122,15 @@ function registerGlobalOSShortcuts(config) {
 
 function createOverlayWindow() {
   if (overlayWindow) return;
+  const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.bounds;
+
   overlayWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width,
+    height,
+    x: 0,
+    y: 0,
     transparent: true,
     frame: false,
     skipTaskbar: true,

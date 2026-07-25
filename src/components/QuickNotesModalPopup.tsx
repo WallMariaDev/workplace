@@ -235,10 +235,22 @@ export const QuickNotesModalPopup: React.FC<QuickNotesModalPopupProps> = ({
     onShowToast('Copied note content to clipboard!');
   };
 
+  const isOverlayMode = window.location.search.includes('mode=overlay');
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-md flex items-center justify-center p-4">
+    <div 
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all ${isOverlayMode ? 'bg-transparent' : 'bg-black/65 backdrop-blur-md'}`}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       {/* Floating Popup Window */}
-      <div className="bg-[#12151B] border border-slate-700/80 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[82vh] animate-in zoom-in-95 duration-150">
+      <div 
+        className="bg-[#12151B] border border-slate-700/80 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[82vh] animate-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Header Bar */}
         <div className="px-4 py-3 bg-[#171B22] border-b border-slate-800 flex items-center justify-between shrink-0 select-none">

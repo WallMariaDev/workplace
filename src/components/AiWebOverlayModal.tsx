@@ -136,11 +136,18 @@ export const AiWebOverlayModal: React.FC<AiWebOverlayModalProps> = ({
     }
   };
 
+  const isOverlayMode = window.location.search.includes('mode=overlay');
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-all"
+      className={`fixed inset-0 z-50 flex items-center justify-center transition-all ${isOverlayMode ? 'bg-transparent' : 'bg-black/60 backdrop-blur-sm'}`}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div
         style={{
@@ -151,6 +158,7 @@ export const AiWebOverlayModal: React.FC<AiWebOverlayModalProps> = ({
         className={`bg-[#12151B] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100 transition-shadow ${
           isPinned ? 'ring-2 ring-indigo-500/30' : ''
         }`}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Top Draggable Header Bar */}
         <div

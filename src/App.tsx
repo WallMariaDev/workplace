@@ -397,7 +397,14 @@ export default function App() {
 
   if (isOverlayMode) {
     return (
-      <div className="w-screen h-screen bg-transparent overflow-hidden text-slate-200 font-sans selection:bg-indigo-600 selection:text-white">
+      <div 
+        className="w-screen h-screen bg-transparent overflow-hidden text-slate-200 font-sans selection:bg-indigo-600 selection:text-white"
+        onClick={(e) => {
+          if (e.target === e.currentTarget && overlayState.isOpen) {
+            setOverlayState(prev => ({ ...prev, isOpen: false }));
+          }
+        }}
+      >
         {toastMessage && (
           <div className="fixed bottom-14 right-6 z-50 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-5 border border-indigo-500/30">
             <span>{toastMessage}</span>
