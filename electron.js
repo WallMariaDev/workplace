@@ -1,11 +1,34 @@
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const { spawn } = require('child_process');
 
-// Boot the bundled Express backend server
-try {
-  require(path.join(__dirname, 'dist', 'server.cjs'));
-} catch (err) {
-  console.error('Express server initialization note:', err);
+let serverProcess = null;
+
+// Start server (either bundled production server or tsx dev server)
+function startBackendServer() {
+  const distServer = path.join(__dirname, 'dist', 'server.cjs');
+  
+  if (fs.existsSync(distServer)) {
+    try {
+      require(distServer);
+      console.log('Loaded bundled production backend server.');
+    } catch (err) {
+      console.error('Error loading dist/server.cjs:', err);
+    }
+  } else {
+    console.log('Starting development server using tsx server.ts...');
+    const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    serverProcess = spawn(cmd, ['tsx', 'server.ts'], {
+      cwd: __dirname,
+      stdio: 'inherit',
+      shell: true,
+    });
+
+    serverProcess.on('error', (err) => {
+      console.error('Failed to spawn dev server:', err);
+    });
+  }
 }
 
 function createWindow() {
@@ -23,23 +46,25 @@ function createWindow() {
     },
   });
 
-  // Attempt loading localhost server, fallback to static dist if needed
   const startUrl = 'http://localhost:3000';
   
   const attemptLoad = (attempts = 0) => {
     win.loadURL(startUrl).catch((err) => {
-      if (attempts < 15) {
-        setTimeout(() => attemptLoad(attempts + 1), 300);
+      if (attempts < 20) {
+        setTimeout(() => attemptLoad(attempts + 1), 500);
       } else {
-        console.warn('Falling back to static HTML file:', err);
-        win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+        console.warn('Fallback to static file or server connection lost:', err);
+        const staticHtml = path.join(__dirname, 'dist', 'index.html');
+        if (fs.existsSync(staticHtml)) {
+          win.loadFile(staticHtml);
+        }
       }
     });
   };
 
   attemptLoad();
 
-  // Open external links in default browser
+  // Open external links in user default browser
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       shell.openExternal(url);
@@ -49,6 +74,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  startBackendServer();
   createWindow();
 
   app.on('activate', () => {
@@ -59,6 +85,13 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  if (serverProcess) {
+    try {
+      serverProcess.kill();
+    } catch (e) {
+      // Ignore cleanup error
+    }
+  }
   if (process.platform !== 'darwin') {
     app.quit();
   }
