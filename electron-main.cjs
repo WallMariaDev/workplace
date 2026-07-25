@@ -168,7 +168,7 @@ function handleGlobalHotkeyTrigger(payload) {
     // ignore
   }
 
-  const isOverlayFeature = ['ai_anywhere', 'quick_notes', 'web_overlay', 'web_overlay_profile'].includes(payload.action);
+  const isOverlayFeature = ['ai_anywhere', 'quick_notes', 'web_overlay', 'web_overlay_profile', 'preset'].includes(payload.action);
 
   if (isOverlayFeature) {
     if (!overlayWindow) createOverlayWindow();
