@@ -4,7 +4,7 @@
   "version": "2.0.4",
   "description": "QuickKeys AI - Smart Automation Recorder, Hotkeys Studio & Web Overlay",
   "author": "QuickKeys AI Team",
-  "main": "dist/server.cjs",
+  "main": "electron.js",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
@@ -23,11 +23,22 @@
       "output": "dist-exe"
     },
     "files": [
-      "dist/**/*"
+      "dist/**/*",
+      "electron.js"
     ],
     "win": {
-      "target": "portable",
+      "target": [
+        "nsis",
+        "portable",
+        "dir"
+      ],
       "icon": "public/vite.svg"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   },
   "dependencies": {
