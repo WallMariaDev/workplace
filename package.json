@@ -10,7 +10,8 @@
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
-    "build:exe": "npm run build && npx electron-builder --win",
+    "build:exe": "npm run build && npx electron-builder --win portable",
+    "build:installer": "npm run build && npx electron-builder --win nsis",
     "exe": "npm run build && npx --yes @yao-pkg/pkg dist/server.cjs -t node18-win-x64 -o dist/quickkeys-ai.exe",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
@@ -28,20 +29,14 @@
     ],
     "win": {
       "target": [
-        "portable",
-        "nsis"
+        "portable"
       ],
       "requestedExecutionLevel": "asInvoker",
       "verifyUpdateCodeSignature": false,
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "publisherName": "QuickKeys AI"
     },
-    "forceCodeSigning": false,
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    }
+    "forceCodeSigning": false
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
