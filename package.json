@@ -4,14 +4,14 @@
   "version": "2.0.4",
   "description": "QuickKeys AI - Smart Automation Recorder, Hotkeys Studio & Web Overlay",
   "author": "QuickKeys AI Team",
-  "main": "electron.js",
+  "main": "electron.cjs",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
     "desktop": "electron .",
     "app": "electron .",
     "dev:desktop": "electron .",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --define:process.env.NODE_ENV=\\\"production\\\" --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "build:exe": "npm run build && npx electron-builder --win portable",
     "build:installer": "npm run build && npx electron-builder --win nsis",
@@ -28,7 +28,7 @@
     },
     "files": [
       "dist/**/*",
-      "electron.js"
+      "electron.cjs"
     ],
     "win": {
       "target": [
@@ -36,8 +36,7 @@
       ],
       "requestedExecutionLevel": "asInvoker",
       "verifyUpdateCodeSignature": false,
-      "signAndEditExecutable": false,
-      "publisherName": "QuickKeys AI"
+      "signAndEditExecutable": false
     },
     "forceCodeSigning": false
   },
