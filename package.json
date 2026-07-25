@@ -28,7 +28,12 @@
     },
     "files": [
       "dist/**/*",
+<<<<<<< HEAD
       "electron.cjs"
+=======
+      "electron.js",
+      "preload.cjs"
+>>>>>>> 623b577e60b27da6f153ac2c6a2dac0d91bc3f8f
     ],
     "win": {
       "target": [

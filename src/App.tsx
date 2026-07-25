@@ -55,12 +55,48 @@ export default function App() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Persist config changes automatically
+  // Persist config changes & Sync with Electron OS Global Shortcut Manager
   useEffect(() => {
     saveAppConfig(config);
+    if ((window as any).electronAPI?.syncHotkeys) {
+      (window as any).electronAPI.syncHotkeys(config);
+    }
   }, [config]);
 
-  // Global keyboard shortcut listener for Quick Notes (Alt + N), AI Anywhere (Alt + Space) & Web Overlays
+  // System-wide Global OS Shortcut Listener (Works 24/7 across ALL applications, even when minimized)
+  useEffect(() => {
+    const electron = (window as any).electronAPI;
+    if (electron && electron.onGlobalShortcut) {
+      electron.onGlobalShortcut((data: any) => {
+        if (!data || !data.action) return;
+
+        if (data.action === 'ai_anywhere') {
+          if (data.capturedText) setAiAnywhereSelectedText(data.capturedText);
+          setIsAiAnywhereOpen(true);
+        } else if (data.action === 'quick_notes') {
+          setIsQuickNotesOpen((prev) => !prev);
+        } else if (data.action === 'web_overlay') {
+          setIsWebOverlayOpen(true);
+        } else if (data.action === 'web_overlay_profile' && data.profileId) {
+          setActiveWebProfileId(data.profileId);
+          setIsWebOverlayOpen(true);
+        } else if (data.action === 'preset' && data.presetId) {
+          const preset = config.hotkeys.find((h) => h.id === data.presetId);
+          if (preset) {
+            triggerAIHotkeyExecution(
+              preset,
+              data.capturedText || 'Captured input text from active OS application.',
+              'browser'
+            );
+          }
+        } else if (data.action === 'automation') {
+          setConfig((prev) => ({ ...prev, activeTab: 'automations' }));
+        }
+      });
+    }
+  }, [config.hotkeys]);
+
+  // In-browser fallback keyboard shortcut listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check for Alt + Space (AI Anywhere)
