@@ -136,12 +136,17 @@ function handleGlobalHotkeyTrigger(payload) {
   mainWindow.show();
   mainWindow.focus();
 
-  // Send event to React renderer via IPC
-  mainWindow.webContents.send('global-shortcut-triggered', {
-    ...payload,
-    capturedText,
-    timestamp: Date.now(),
-  });
+  // Give the renderer a tiny delay to wake up if it was suspended
+  setTimeout(() => {
+    // Send event to React renderer via IPC
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('global-shortcut-triggered', {
+        ...payload,
+        capturedText,
+        timestamp: Date.now(),
+      });
+    }
+  }, 50);
 }
 
 // System Tray Setup for 24/7 Background Execution

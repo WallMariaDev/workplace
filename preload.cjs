@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   onGlobalShortcut: (callback) => {
     try {
+      ipcRenderer.removeAllListeners('global-shortcut-triggered');
       ipcRenderer.on('global-shortcut-triggered', (_event, data) => callback(data));
     } catch (e) {
       console.warn('Failed to register global-shortcut-triggered listener:', e);

@@ -96,8 +96,10 @@ export default function App() {
     }
   }, [config.hotkeys]);
 
-  // In-browser fallback keyboard shortcut listener
+  // In-browser fallback keyboard shortcut listener (Only active in web browser, not Electron)
   useEffect(() => {
+    if ((window as any).electronAPI?.isElectron) return; // Disable fallback in Electron
+    
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check for Alt + Space (AI Anywhere)
       if (e.altKey && !e.ctrlKey && !e.metaKey && (e.code === 'Space' || e.key === ' ')) {
