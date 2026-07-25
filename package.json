@@ -29,9 +29,9 @@
     "win": {
       "target": [
         "nsis",
-        "portable",
-        "dir"
+        "portable"
       ],
+      "requestedExecutionLevel": "asInvoker",
       "icon": "public/vite.svg"
     },
     "nsis": {
