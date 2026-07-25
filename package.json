@@ -4,7 +4,7 @@
   "version": "2.0.4",
   "description": "QuickKeys AI - Smart Automation Recorder, Hotkeys Studio & Web Overlay",
   "author": "QuickKeys AI Team",
-  "main": "electron.cjs",
+  "main": "electron.js",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
@@ -28,6 +28,7 @@
     },
     "files": [
       "dist/**/*",
+      "electron.js",
       "electron.cjs",
       "preload.cjs"
     ],
@@ -37,7 +38,8 @@
       ],
       "requestedExecutionLevel": "asInvoker",
       "verifyUpdateCodeSignature": false,
-      "signAndEditExecutable": false
+      "signAndEditExecutable": false,
+      "publisherName": "QuickKeys AI"
     },
     "forceCodeSigning": false
   },
