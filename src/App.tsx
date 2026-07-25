@@ -20,6 +20,8 @@ import { ProfileManager } from './components/ProfileManager';
 import { AutomationRecorder } from './components/AutomationRecorder';
 
 export default function App() {
+  const isOverlayMode = window.location.search.includes('mode=overlay');
+  
   const [config, setConfig] = useState<AppConfig>(() => loadAppConfig());
   const [isRecorderOpen, setIsRecorderOpen] = useState<boolean>(false);
   const [editingPreset, setEditingPreset] = useState<HotkeyPreset | null>(null);
@@ -54,6 +56,18 @@ export default function App() {
   });
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Auto-hide the transparent overlay window when all modals are closed
+  useEffect(() => {
+    if (isOverlayMode) {
+      if (!isQuickNotesOpen && !isWebOverlayOpen && !isAiAnywhereOpen && !overlayState.isOpen) {
+        const electron = (window as any).electronAPI;
+        if (electron && electron.hideOverlayWindow) {
+          electron.hideOverlayWindow();
+        }
+      }
+    }
+  }, [isQuickNotesOpen, isWebOverlayOpen, isAiAnywhereOpen, overlayState.isOpen, isOverlayMode]);
 
   // Persist config changes & Sync with Electron OS Global Shortcut Manager
   useEffect(() => {
@@ -380,6 +394,93 @@ export default function App() {
       window.location.reload();
     }
   };
+
+  if (isOverlayMode) {
+    return (
+      <div className="w-screen h-screen bg-transparent overflow-hidden text-slate-200 font-sans selection:bg-indigo-600 selection:text-white">
+        {toastMessage && (
+          <div className="fixed bottom-14 right-6 z-50 bg-indigo-600 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold flex items-center space-x-2 animate-in fade-in slide-in-from-bottom-5 border border-indigo-500/30">
+            <span>{toastMessage}</span>
+          </div>
+        )}
+        <QuickNotesModalPopup
+          config={config}
+          isOpen={isQuickNotesOpen}
+          onClose={() => setIsQuickNotesOpen(false)}
+          onUpdateConfig={(newConfig) => setConfig(newConfig)}
+          onShowToast={showToast}
+          onOpenMainNotesTab={() => {
+            const electron = (window as any).electronAPI;
+            if (electron && electron.showAppWindow) {
+              electron.showAppWindow();
+            }
+            handleTabChange('notes');
+          }}
+        />
+        <AiWebOverlayModal
+          config={config}
+          isOpen={isWebOverlayOpen}
+          onClose={() => setIsWebOverlayOpen(false)}
+          activeProfileId={activeWebProfileId}
+          onSelectProfile={(id) => setActiveWebProfileId(id)}
+          onShowToast={showToast}
+          onOpenSettings={() => {
+            const electron = (window as any).electronAPI;
+            if (electron && electron.showAppWindow) {
+              electron.showAppWindow();
+            }
+            handleTabChange('web_overlay');
+          }}
+        />
+        <AiAnywhereModalPopup
+          config={config}
+          isOpen={isAiAnywhereOpen}
+          selectedText={aiAnywhereSelectedText}
+          onClose={() => {
+            setIsAiAnywhereOpen(false);
+            setAiAnywhereSelectedText('');
+          }}
+          onShowToast={showToast}
+          onUpdateConfig={(newConfig) => setConfig(newConfig)}
+        />
+        <FloatingOverlayWindow
+          isOpen={overlayState.isOpen}
+          preset={overlayState.preset}
+          inputText={overlayState.selectedText}
+          outputText={overlayState.outputText || ''}
+          isGenerating={overlayState.isGenerating}
+          error={overlayState.error}
+          executionTimeMs={overlayState.executionTimeMs || 0}
+          appContext={overlayState.appContext}
+          position={overlayState.position}
+          onClose={() => setOverlayState((prev) => ({ ...prev, isOpen: false }))}
+          onCopy={(text) => {
+            navigator.clipboard.writeText(text);
+            showToast('Copied AI response to clipboard!');
+          }}
+          onReplaceText={(text) => {
+            showToast(`Replaced text in active ${overlayState.appContext.toUpperCase()} window!`);
+          }}
+          onRegenerate={() => {
+            if (overlayState.preset) {
+              triggerAIHotkeyExecution(
+                overlayState.preset,
+                overlayState.selectedText,
+                overlayState.appContext
+              );
+            }
+          }}
+          onFollowUp={handleFollowUpExecution}
+          onSwitchProvider={(prov, model) => {
+            if (overlayState.preset) {
+              const updated = { ...overlayState.preset, provider: prov, model };
+              triggerAIHotkeyExecution(updated, overlayState.selectedText, overlayState.appContext);
+            }
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0F1115] text-slate-200 flex flex-col md:flex-row font-sans selection:bg-indigo-600 selection:text-white">

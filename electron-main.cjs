@@ -4,6 +4,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 
 let mainWindow = null;
+let overlayWindow = null;
 let tray = null;
 let isQuitting = false;
 let serverProcess = null;
@@ -119,10 +120,46 @@ function registerGlobalOSShortcuts(config) {
   }
 }
 
+function createOverlayWindow() {
+  if (overlayWindow) return;
+  overlayWindow = new BrowserWindow({
+    width: 900,
+    height: 700,
+    transparent: true,
+    frame: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    resizable: false,
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.cjs'),
+    },
+  });
+
+  const startUrl = 'http://localhost:3000/?mode=overlay';
+  const attemptLoad = (attempts = 0) => {
+    overlayWindow.loadURL(startUrl).catch((err) => {
+      if (attempts < 20) {
+        setTimeout(() => attemptLoad(attempts + 1), 500);
+      } else {
+        const staticHtml = path.join(__dirname, 'dist', 'index.html');
+        if (fs.existsSync(staticHtml)) {
+          overlayWindow.loadFile(staticHtml, { query: { mode: 'overlay' } });
+        }
+      }
+    });
+  };
+  attemptLoad();
+
+  overlayWindow.on('closed', () => {
+    overlayWindow = null;
+  });
+}
+
 // Triggered whenever any global hotkey is pressed ANYWHERE on Windows / OS
 function handleGlobalHotkeyTrigger(payload) {
-  if (!mainWindow) return;
-
   // Read current system clipboard text (useful if user highlighted text in Chrome/Word/Notepad)
   let capturedText = '';
   try {
@@ -131,22 +168,42 @@ function handleGlobalHotkeyTrigger(payload) {
     // ignore
   }
 
-  // Restore and bring window to focus
-  if (mainWindow.isMinimized()) mainWindow.restore();
-  mainWindow.show();
-  mainWindow.focus();
+  const isOverlayFeature = ['ai_anywhere', 'quick_notes', 'web_overlay', 'web_overlay_profile'].includes(payload.action);
 
-  // Give the renderer a tiny delay to wake up if it was suspended
-  setTimeout(() => {
-    // Send event to React renderer via IPC
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('global-shortcut-triggered', {
-        ...payload,
-        capturedText,
-        timestamp: Date.now(),
-      });
-    }
-  }, 50);
+  if (isOverlayFeature) {
+    if (!overlayWindow) createOverlayWindow();
+
+    setTimeout(() => {
+      if (overlayWindow && !overlayWindow.isDestroyed()) {
+        overlayWindow.show();
+        overlayWindow.focus();
+        overlayWindow.webContents.send('global-shortcut-triggered', {
+          ...payload,
+          capturedText,
+          timestamp: Date.now(),
+        });
+      }
+    }, 50);
+  } else {
+    if (!mainWindow) return;
+
+    // Restore and bring window to focus
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+
+    // Give the renderer a tiny delay to wake up if it was suspended
+    setTimeout(() => {
+      // Send event to React renderer via IPC
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('global-shortcut-triggered', {
+          ...payload,
+          capturedText,
+          timestamp: Date.now(),
+        });
+      }
+    }, 50);
+  }
 }
 
 // System Tray Setup for 24/7 Background Execution
@@ -297,6 +354,12 @@ ipcMain.on('show-app-window', () => {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
     mainWindow.focus();
+  }
+});
+
+ipcMain.on('hide-overlay-window', () => {
+  if (overlayWindow) {
+    overlayWindow.hide();
   }
 });
 

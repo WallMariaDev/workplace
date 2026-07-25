@@ -31,4 +31,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
       console.warn('Failed to send show-app-window IPC:', e);
     }
   },
+  hideOverlayWindow: () => {
+    try {
+      ipcRenderer.send('hide-overlay-window');
+    } catch (e) {
+      console.warn('Failed to send hide-overlay-window IPC:', e);
+    }
+  },
 });
